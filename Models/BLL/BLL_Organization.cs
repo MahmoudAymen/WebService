@@ -1,10 +1,10 @@
-﻿using AdminServiceGBO.Models.DAL;
-using AdminServiceGBO.Models.Entities;
+﻿using DSSGBOAdmin.Models.DAL;
+using DSSGBOAdmin.Models.Entities;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace AdminServiceGBO.Models.BLL
+namespace DSSGBOAdmin.Models.BLL
 {
     public class BLL_Organization
     {

@@ -1,4 +1,4 @@
-﻿using AdminServiceGBO.Models.Entities;
+﻿using DSSGBOAdmin.Models.Entities;
 using MyUtilities;
 using System;
 using System.Collections.Generic;
@@ -7,7 +7,7 @@ using System.Data.SqlClient;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace AdminServiceGBO.Models.DAL
+namespace DSSGBOAdmin.Models.DAL
 {
     public class DAL_Demande
     {
@@ -75,7 +75,7 @@ namespace AdminServiceGBO.Models.DAL
         }
         public static void AddDemande(Demande newDemande)
         {
-            if (selectByField("Name", newDemande.Name).ID != 0 || selectByField("Email", newDemande.Email).ID != 0)
+            if (selectByField("Name", newDemande.Name) != null || selectByField("Email", newDemande.Email) != null)
             {
                 throw new MyException("Database Error", "Demande must be unique.", "DAL");
             }
@@ -83,8 +83,7 @@ namespace AdminServiceGBO.Models.DAL
             {
                 string StrSQL = "insert into [RegistrationDemand]  " +
                     "([Name],[Affiliation],[FieldOfActivity],[Adress],[PostalCode],[City],[Country],[Email],[Phone],[PersonToContact],[ContactMail],[ContactPhone],[ContactPosition],[RegDemandDate],[RegDemandDecision],[RegDemandDecisionDate],[RegDecisionComments])" +
-                    " output INSERTED.ID " +
-                    "values  (" +
+                                              "values  (" +
                     "@Name,@Affiliation,@FieldOfActivity,@Adress,@PostalCode,@City,@Country,@Email,@Phone,@PersonToContact,@ContactMail,@ContactPhone,@ContactPosition,@RegDemandDate,@RegDemandDecision,@RegDemandDecisionDate,@RegDecisionComments)";
 
                 SqlCommand MySqlCommand = new SqlCommand(StrSQL, con);

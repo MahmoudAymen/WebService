@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace AdminServiceGBO.Models.Entities
+namespace DSSGBOAdmin.Models.Entities
 {
     public class User
     {
