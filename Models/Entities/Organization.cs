@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace AdminServiceGBO.Models.Entities
+namespace DSSGBOAdmin.Models.Entities
 {
     public class Organization
     {
@@ -32,12 +32,7 @@ namespace AdminServiceGBO.Models.Entities
         public string AccountType { get; set; }
         public string OrganizationSystemPrefix { get; set; }
         public Organization(){}
-        public Organization(long Id, string NameFr,string NameAr,string Acronym,string OrganisationLogo,
-            string Affiliation,string AffiliationLogo,string FieldOfActivity,string Adress,string PostalCode,
-            string City,string Country,string Email,string Phone,string PersonToContact,string ContactMail,
-            string ContactPhone,string ContactPosition,string ParDiffusionEmail,string ParDiffusionEmailPW,
-            string ParOutgoingMailChar, string ParIngoingMailChar,string AccountStatus,string AccountType,
-            string OrganizationSystemPrefix) {
+        public Organization(long Id, string NameFr,string NameAr,string Acronym,string OrganisationLogo,string Affiliation,string AffiliationLogo,string FieldOfActivity,string Adress,string PostalCode,string City,string Country,string Email,string Phone,string PersonToContact,string ContactMail,string ContactPhone,string ContactPosition,string ParDiffusionEmail,string ParDiffusionEmailPW,string ParOutgoingMailChar, string ParIngoingMailChar,string AccountStatus,string AccountType) {
 
             this.Id = Id;
             this.NameFr = NameFr;
@@ -63,7 +58,6 @@ namespace AdminServiceGBO.Models.Entities
             this.ParIngoingMailChar = ParIngoingMailChar;
             this.AccountStatus = AccountStatus;
             this.AccountType = AccountType;
-            this.OrganizationSystemPrefix = OrganizationSystemPrefix;
         }
     }
 }

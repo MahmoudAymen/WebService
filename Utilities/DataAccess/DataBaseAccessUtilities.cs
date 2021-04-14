@@ -243,14 +243,14 @@ namespace MyUtilities
         }
 
 
-        public MyException(string MyExceptionTitle, string MyExceptionMessage, string lev) : base(MyExceptionMessage)
+        public MyException(string MyExceptionTitle, string MyExceptionMessage, string lev):base(MyExceptionMessage)
         {
             this._Level = lev;
             this._MyExceptionTitle = MyExceptionTitle;
             this._MyExceptionMessage = MyExceptionMessage;
         }
 
-        public MyException(Exception e, string MyExceptionTitle, string MyExceptionMessage, string lev) : base(MyExceptionMessage)
+        public MyException(Exception e, string MyExceptionTitle, string MyExceptionMessage, string lev) : base(e.Message)
         {
             this._Level = lev;
             this._MyExceptionTitle = MyExceptionTitle;

@@ -1,4 +1,4 @@
-﻿using AdminServiceGBO.Models.Entities;
+﻿using DSSGBOAdmin.Models.Entities;
 using MyUtilities;
 using System;
 using System.Collections.Generic;
@@ -7,16 +7,10 @@ using System.Data.SqlClient;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace AdminServiceGBO.Models.DAL
+namespace DSSGBOAdmin.Models.DAL
 {
     public class DAL_Demande
     {
-
-        public static string CreateDatabaseIfNotExists(string OrganizationSystemPrefix)
-        {
-            return DBConnection.CreateDatabase(OrganizationSystemPrefix);
-        }
-
         public static Demande selectByField(string field, string valueSearch)
         {
             Demande demande = new Demande();
@@ -49,29 +43,29 @@ namespace AdminServiceGBO.Models.DAL
                     if (dataReader.Read())
                     {
                         demande.ID = dataReader.GetInt64(0);
-                        demande.Name = dataReader["Name"].ToString().Trim();
-                        demande.Affiliation = dataReader["Affiliation"].ToString().Trim();
-                        demande.FieldOfActivity = dataReader["FieldOfActivity"].ToString().Trim();
-                        demande.Adress = dataReader["Adress"].ToString().Trim();
-                        demande.PostalCode = dataReader["PostalCode"].ToString().Trim();
-                        demande.City = dataReader["City"].ToString().Trim();
-                        demande.Country = dataReader["Country"].ToString().Trim();
-                        demande.Email = dataReader["Email"].ToString().Trim();
-                        demande.Phone = dataReader["Phone"].ToString().Trim();
-                        demande.PersonToContact = dataReader["PersonToContact"].ToString().Trim();
-                        demande.ContactMail = dataReader["ContactMail"].ToString().Trim();
-                        demande.ContactPhone = dataReader["ContactPhone"].ToString().Trim();
-                        demande.ContactPosition = dataReader["ContactPosition"].ToString().Trim();
+                        demande.Name = dataReader["Name"].ToString();
+                        demande.Affiliation = dataReader["Affiliation"].ToString();
+                        demande.FieldOfActivity = dataReader["FieldOfActivity"].ToString();
+                        demande.Adress = dataReader["Adress"].ToString();
+                        demande.PostalCode = dataReader["PostalCode"].ToString();
+                        demande.City = dataReader["City"].ToString();
+                        demande.Country = dataReader["Country"].ToString();
+                        demande.Email = dataReader["Email"].ToString();
+                        demande.Phone = dataReader["Phone"].ToString();
+                        demande.PersonToContact = dataReader["PersonToContact"].ToString();
+                        demande.ContactMail = dataReader["ContactMail"].ToString();
+                        demande.ContactPhone = dataReader["ContactPhone"].ToString();
+                        demande.ContactPosition = dataReader["ContactPosition"].ToString();
                         demande.RegDemandDate = dataReader["RegDemandDate"].ToString().Split(" ")[0];
-                        demande.RegDemandDecision = dataReader["RegDemandDecision"].ToString().Trim();
+                        demande.RegDemandDecision = dataReader["RegDemandDecision"].ToString();
                         demande.RegDemandDecisionDate = dataReader["RegDemandDecisionDate"].ToString().Split(" ")[0];
-                        demande.RegDecisionComments = dataReader["RegDecisionComments"].ToString().Trim();
+                        demande.RegDecisionComments = dataReader["RegDecisionComments"].ToString();
                     }
                     return demande;
                 }
                 catch (SqlException e)
                 {
-                    throw new MyException(e, "Erreur Base de données", e.Message, "DAL");
+                    throw new MyException(e, "Erreur Base de données :", e.Message, "DAL");
                 }
                 finally
                 {
@@ -83,7 +77,7 @@ namespace AdminServiceGBO.Models.DAL
         {
             if (selectByField("Name", newDemande.Name).ID != 0 || selectByField("Email", newDemande.Email).ID != 0)
             {
-                throw new MyException("Base De Données Erreur", "Demande doit etre unique.", "DAL");
+                throw new MyException("Erreur Base de données :", "Demande doit être unique.", "DAL");
             }
             using (SqlConnection con = DBConnection.GetAuthConnection())
             {
@@ -114,11 +108,6 @@ namespace AdminServiceGBO.Models.DAL
                 DataBaseAccessUtilities.NonQueryRequest(MySqlCommand);
 
             }
-        }
-
-        internal static string DeleteDatabaseIfExists(string OrganizationSystemPrefix)
-        {
-            return DBConnection.DeleteDatabase(OrganizationSystemPrefix);
         }
 
         public static void UpdateDemande(long Id, Demande newDemande)
@@ -217,23 +206,23 @@ namespace AdminServiceGBO.Models.DAL
                         {
                             demande = new Demande();
                             demande.ID = dataReader.GetInt64(0);
-                            demande.Name = dataReader["Name"].ToString().Trim();
-                            demande.Affiliation = dataReader["Affiliation"].ToString().Trim();
-                            demande.FieldOfActivity = dataReader["FieldOfActivity"].ToString().Trim();
-                            demande.Adress = dataReader["Adress"].ToString().Trim();
-                            demande.PostalCode = dataReader["PostalCode"].ToString().Trim();
-                            demande.City = dataReader["City"].ToString().Trim();
-                            demande.Country = dataReader["Country"].ToString().Trim();
-                            demande.Email = dataReader["Email"].ToString().Trim();
-                            demande.Phone = dataReader["Phone"].ToString().Trim();
-                            demande.PersonToContact = dataReader["PersonToContact"].ToString().Trim();
-                            demande.ContactMail = dataReader["ContactMail"].ToString().Trim();
-                            demande.ContactPhone = dataReader["ContactPhone"].ToString().Trim();
-                            demande.ContactPosition = dataReader["ContactPosition"].ToString().Trim();
+                            demande.Name = dataReader["Name"].ToString();
+                            demande.Affiliation = dataReader["Affiliation"].ToString();
+                            demande.FieldOfActivity = dataReader["FieldOfActivity"].ToString();
+                            demande.Adress = dataReader["Adress"].ToString();
+                            demande.PostalCode = dataReader["PostalCode"].ToString();
+                            demande.City = dataReader["City"].ToString();
+                            demande.Country = dataReader["Country"].ToString();
+                            demande.Email = dataReader["Email"].ToString();
+                            demande.Phone = dataReader["Phone"].ToString();
+                            demande.PersonToContact = dataReader["PersonToContact"].ToString();
+                            demande.ContactMail = dataReader["ContactMail"].ToString();
+                            demande.ContactPhone = dataReader["ContactPhone"].ToString();
+                            demande.ContactPosition = dataReader["ContactPosition"].ToString();
                             demande.RegDemandDate = dataReader["RegDemandDate"].ToString().Split(" ")[0];
-                            demande.RegDemandDecision = dataReader["RegDemandDecision"].ToString().Trim();
+                            demande.RegDemandDecision = dataReader["RegDemandDecision"].ToString();
                             demande.RegDemandDecisionDate = dataReader["RegDemandDecisionDate"].ToString().Split(" ")[0];
-                            demande.RegDecisionComments = dataReader["RegDecisionComments"].ToString().Trim();
+                            demande.RegDecisionComments = dataReader["RegDecisionComments"].ToString();
                             demandes.Add(demande);
                         }
                     }
@@ -242,7 +231,7 @@ namespace AdminServiceGBO.Models.DAL
                 catch (SqlException e)
                 {
                     System.Diagnostics.Debug.WriteLine("e.Message=" + e.Message);
-                    throw new MyException(e, "Erreur Base de données", e.Message, "DAL");
+                    throw new MyException(e, "Erreur Base de données :", e.Message, "DAL");
                 }
                 finally
                 {

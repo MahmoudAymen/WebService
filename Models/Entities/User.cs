@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace AdminServiceGBO.Models.Entities
+namespace DSSGBOAdmin.Models.Entities
 {
     public class User
     {
@@ -16,6 +16,7 @@ namespace AdminServiceGBO.Models.Entities
         public string AffiliationLogoUser { get; set; }
         public string EmailOrganisation { get; set; }
         public string PasswordOrganisation { get; set; }
+        public string OrganizationSystemPrefix { get; set; }
         public DateTime AccountCreationDate { get; set; }
         public User() { }
         public User(long IdUser, long IdOrganizationUser, string NameUser,
@@ -33,7 +34,6 @@ namespace AdminServiceGBO.Models.Entities
             this.AffiliationLogoUser = AffiliationLogoUser;
             this.EmailOrganisation = EmailOrganisation;
             this.PasswordOrganisation = PasswordOrganisation;
-
         }
     }
 }
