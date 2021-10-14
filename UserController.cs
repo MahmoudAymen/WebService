@@ -1,17 +1,14 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using DSSGBOAdmin.Models.BLL;
-using DSSGBOAdmin.Models.Entities;
-using Microsoft.AspNetCore.Cors;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using AdminServices.Utilities;
+using Microsoft.AspNetCore.Mvc;
+using AdminServices.Models.BLL;
+using Microsoft.AspNetCore.Http;
+using System.Collections.Generic;
+using AdminServices.Models.Entities;
+using Microsoft.AspNetCore.Hosting;
 
-// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-
-namespace DSSGBOAdmin.Controllers
+namespace AdminServices.Controllers
 {
     public enum WebsiteLanguage
     {
@@ -22,40 +19,59 @@ namespace DSSGBOAdmin.Controllers
     [ApiController]
     public class UserController : Controller
     {
-        [Route("Organization")]
-        [HttpGet]
-        public IActionResult GetAllUers(long IdOrganization)
-        {
-            try
-            {
-                List<User> users = BLL_User.SelectAll(IdOrganization);
-                if (users != null && users.Count > 0)
-                    return Json(new { success = true, message = "Utlisateurs trouves", data = users });
-                else
-                    return Json(new { success = true, message = "Pas des utlisateurs pour cette organisation", data = users });
 
-            }
-            catch (Exception ex)
-            {
-                return Json(new { success = false, message = "Erreur serveur: " + ex.Message });
-            }
+        private readonly IWebHostEnvironment webHostingEnvironment;
+
+        public UserController(IWebHostEnvironment environment)
+        {
+            webHostingEnvironment = environment;
         }
 
-        // GET api/<UserController>/5
+
+        //[HttpGet]
+        //public IActionResult GetIp()
+        //{
+        //    try
+        //    {
+        //        string IpRemoteAdress = MyHelpers.GetIpRequest(HttpContext.Connection.RemoteIpAddress);
+        //        string IdentifiantUserRequest = MyHelpers.GetIdentifiantUserRequest(Request.Cookies);
+        //        return Json(new { success = true, message = "IpRemoteAdress: " + IpRemoteAdress, data = "IdentifiantUserRequest : " + IdentifiantUserRequest + " \\ UserID : " + Request.Cookies["UserID"]  + " \\ RootPath " + webHostingEnvironment.ContentRootPath });
+
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return Json(new { success = false, message = "Erreur serveur: " + ex.Message });
+        //    }
+        //}
         [HttpGet]
         [Route("{iduser:long}")]
         public IActionResult Get(long iduser)
         {
             try
             {
-                User user = BLL_User.SelectById(iduser);
-                if (user != null && user.Id > 0)
+                string IpRemoteAdress = MyHelpers.GetIpRequest(HttpContext.Connection.RemoteIpAddress);
+                string IdentifiantUserRequest = MyHelpers.GetIdentifiantUserRequest(Request.Cookies);
+
+                if (MyHelpers.ValidateIpAdresse(IpRemoteAdress, BLL_IpAdresse.SelectAllIpAdresseValidation(IdentifiantUserRequest)))
                 {
-                    return Json(new { success = true, message = "Utlisateur trouve", data = user });
+
+                    bool IsAdminRequest = false;
+                    if (IdentifiantUserRequest.Equals(MyHelpers.IdentifiantAdminRequest))
+                        IsAdminRequest = true;
+
+                    User user = BLL_User.SelectById(iduser, IsAdminRequest);
+                    if (user != null && user.Id > 0)
+                    {
+                        return Json(new { success = true, message = "Utlisateur trouve", data = user });
+                    }
+                    else
+                    {
+                        return Json(new { success = true, message = "Utilisateur introuvable.", data = user });
+                    }
                 }
                 else
                 {
-                    return Json(new { success = true, message = "Utilisateur introuvable.", data = user });
+                    throw new Exception("Requete refusée pour cette adresse IP " + IpRemoteAdress);
                 }
             }
             catch (Exception ex)
@@ -64,32 +80,31 @@ namespace DSSGBOAdmin.Controllers
             }
         }
 
-        // POST api/<UserController>
-        [Route("")]
         [HttpPost]
-        //[ValidateAntiForgeryToken]
+        [Route("")]
         public JsonResult Post([FromForm] User user)
         {
             try
             {
-                BLL_User.Add(user);
-                return Json(new { success = true, message = "Utilisateur ajouté avec success" });
-            }
-            catch (Exception ex)
-            {
-                return Json(new { success = false, message ="Erreur serveur: "+ ex.Message });
-            }
-        }
+                string IpRemoteAdress = MyHelpers.GetIpRequest(HttpContext.Connection.RemoteIpAddress);
+                string IdentifiantUserRequest = MyHelpers.GetIdentifiantUserRequest(Request.Cookies);
 
-        // PUT api/<UserController>/5
-        [Route("{id:long}")]
-        [HttpPut]
-        public JsonResult Put(long id, [FromForm] User user)
-        {
-            try
-            {
-                BLL_User.Update(id, user);
-                return Json(new { success = true, message = "Utilisateur modifié avec succès." });
+                if (MyHelpers.ValidateIpAdresse(IpRemoteAdress, BLL_IpAdresse.SelectAllIpAdresseValidation(IdentifiantUserRequest)))
+                {
+
+                    bool IsAdminRequest = false;
+                    if (IdentifiantUserRequest.Equals(MyHelpers.IdentifiantAdminRequest))
+                        IsAdminRequest = true;
+
+
+                    BLL_User.Add(user, IsAdminRequest, Request.Cookies["UserID"], IdentifiantUserRequest, webHostingEnvironment.ContentRootPath);
+                    return Json(new { success = true, message = "Utilisateur ajouté avec success" });
+
+                }
+                else
+                {
+                    throw new Exception("Requete refusée pour cette adresse IP " + IpRemoteAdress);
+                }
             }
             catch (Exception ex)
             {
@@ -97,19 +112,63 @@ namespace DSSGBOAdmin.Controllers
             }
         }
 
-        [Route("{id}")]
+        // PUT api/<UserController>/5
+        [HttpPut]
+        [Route("{id:long}")]
+        public JsonResult Put(long id, [FromForm] User user)
+        {
+            try
+            {
+                string IpRemoteAdress = MyHelpers.GetIpRequest(HttpContext.Connection.RemoteIpAddress);
+                string IdentifiantUserRequest = MyHelpers.GetIdentifiantUserRequest(Request.Cookies);
+
+                if (MyHelpers.ValidateIpAdresse(IpRemoteAdress, BLL_IpAdresse.SelectAllIpAdresseValidation(IdentifiantUserRequest)))
+                {
+
+                    bool IsAdminRequest = false;
+                    if (IdentifiantUserRequest.Equals(MyHelpers.IdentifiantAdminRequest))
+                        IsAdminRequest = true;
+
+
+                    BLL_User.Update(id, user, IsAdminRequest, Request.Cookies["UserID"], IdentifiantUserRequest, webHostingEnvironment.ContentRootPath);
+                    return Json(new { success = true, message = "Utilisateur modifié avec succès." });
+
+                }
+                else
+                {
+                    throw new Exception("Requete refusée pour cette adresse IP " + IpRemoteAdress);
+                }
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "Erreur serveur: " + ex.Message });
+            }
+        }
+
         [HttpDelete]
-        //[ProducesResponseType(StatusCodes.Status204NoContent)]
-        //[ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
-        //[ProducesResponseType(typeof(string), StatusCodes.Status500InternalServerError)]
-        //[ProducesDefaultResponseType]
+        [Route("{id}")]
         public JsonResult Delete(long id)
         {
             try
             {
-                //Response.Headers.Append("Access-Control-Allow-Origin", "*");
-                BLL_User.Delete(id);
-                return Json(new { success = true, message = "Utilisateur supprimé avec succès" });
+                string IpRemoteAdress = MyHelpers.GetIpRequest(HttpContext.Connection.RemoteIpAddress);
+                string IdentifiantUserRequest = MyHelpers.GetIdentifiantUserRequest(Request.Cookies);
+
+                if (MyHelpers.ValidateIpAdresse(IpRemoteAdress, BLL_IpAdresse.SelectAllIpAdresseValidation(IdentifiantUserRequest)))
+                {
+
+                    bool IsAdminRequest = false;
+                    if (IdentifiantUserRequest.Equals(MyHelpers.IdentifiantAdminRequest))
+                        IsAdminRequest = true;
+
+                    BLL_User.Delete(id, IsAdminRequest, Request.Cookies["UserID"], IdentifiantUserRequest, webHostingEnvironment.ContentRootPath);
+                    return Json(new { success = true, message = "Utilisateur supprimé avec succès" });
+
+                }
+                else
+                {
+                    throw new Exception("Requete refusée pour cette adresse IP " + IpRemoteAdress);
+                }
             }
             catch (Exception ex)
             {
@@ -127,7 +186,7 @@ namespace DSSGBOAdmin.Controllers
                 string message;
                 //System.Diagnostics.Debug.WriteLine("message1=" + message);
                 List<User> Users = BLL_User.TestConnexion(Name, Password, out message);
-                //System.Diagnostics.Debug.WriteLine("message2=" + message);
+                System.Diagnostics.Debug.WriteLine("message2=" + message);
                 return new KeyValuePair<List<User>, string>(Users, message);
 
             }
@@ -136,6 +195,7 @@ namespace DSSGBOAdmin.Controllers
                 return new KeyValuePair<List<User>, string>(new List<User>(), ex.Message);
             }
         }
+
         // rechercher compte utilisateur
         // test connexion
         [Route("Login/RechercherCompte")]
@@ -163,13 +223,14 @@ namespace DSSGBOAdmin.Controllers
                 throw ex;
             }
         }
+
         // test unicite UserName
         [Route("Validation/CreateName")]
         [AcceptVerbs("Get", "Post")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(string), StatusCodes.Status500InternalServerError)]
         [ProducesDefaultResponseType]
-        public IActionResult CreateNameValidation(string name, long idOrganization,WebsiteLanguage websiteLanguage)
+        public IActionResult CreateNameValidation(string name, long idOrganization, WebsiteLanguage websiteLanguage)
         {
             try
             {
@@ -194,7 +255,7 @@ namespace DSSGBOAdmin.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(string), StatusCodes.Status500InternalServerError)]
         [ProducesDefaultResponseType]
-        public IActionResult CreateEmailValidation(string email, long idOrganization,WebsiteLanguage websiteLanguage)
+        public IActionResult CreateEmailValidation(string email, long idOrganization, WebsiteLanguage websiteLanguage)
         {
             try
             {
@@ -223,7 +284,7 @@ namespace DSSGBOAdmin.Controllers
         {
             try
             {
-                User currentUser = BLL_User.SelectById(id);
+                User currentUser = BLL_User.SelectById(id, false);
                 if (!currentUser.Name.Equals(name) && !BLL_User.CheckNameUnicity(name, idOrganization))
                 {
                     switch (websiteLanguage)
@@ -245,11 +306,11 @@ namespace DSSGBOAdmin.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(string), StatusCodes.Status500InternalServerError)]
         [ProducesDefaultResponseType]
-        public IActionResult EditEmailValidation(string email, long idOrganization,long id, WebsiteLanguage websiteLanguage)
+        public IActionResult EditEmailValidation(string email, long idOrganization, long id, WebsiteLanguage websiteLanguage)
         {
             try
             {
-                User currentUser = BLL_User.SelectById(id);
+                User currentUser = BLL_User.SelectById(id, false);
                 if (!currentUser.Email.Equals(email) && !BLL_User.CheckEmailUnicity(email, idOrganization))
                 {
                     switch (websiteLanguage)
@@ -265,7 +326,7 @@ namespace DSSGBOAdmin.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, e.Message);
             }
         }
-        
+
 
     }
 }
